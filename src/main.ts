@@ -93,7 +93,7 @@ async function HandleMessage(msg: Buffer, rinfo: dgram.RemoteInfo) {
         if (isHFDL(json)) {
             let hfdl = json.hfdl as HFDL;
             //logger.info(`HFDL with ACARS`);
-            stats.histogram(`hfdl.${hfdl.station}.${hfdl.app.ver}`, 1);
+            stats.histogram(`hfdl.${hfdl.station}.${hfdl.freq}`, 1);
             constats.msgs++;
             constats.types.HFDL++;
             outputMsg = MakeHFDLMessage(hfdl);
