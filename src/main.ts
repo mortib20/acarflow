@@ -103,11 +103,11 @@ async function HandleMessage(msg: Buffer, rinfo: dgram.RemoteInfo) {
             //logger.info("Message emitted");
             output.emit('NewData', outputMsg);
 
-            const pos = DetectPosition(outputMsg);
-            if(pos) {
-                stats.gauge("position.lat", pos.lat);
-                stats.gauge("position.lon", pos.lon);
-            }
+            //const pos = DetectPosition(outputMsg);
+            //if(pos) {
+            //    stats.gauge("position.lat", pos.lat);
+            //    stats.gauge("position.lon", pos.lon);
+            //}
         }
     } catch (err) {
         logger.error((err as Error).message);
