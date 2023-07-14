@@ -11,10 +11,11 @@ import HFDL from './interface/hfdl';
 import Satcom from './interface/satcom';
 import VDL2 from './interface/vdl2';
 import { MakeHFDLMessage, MakeSATCOMMessage, MakeVDL2Message } from './make';
+import Message from './interface/message';
+import Position from './interface/position';
 
 /* Environment */
 dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
-console.log(process.env);
 
 /* Config */
 const config: Config = {
@@ -101,8 +102,34 @@ async function HandleMessage(msg: Buffer, rinfo: dgram.RemoteInfo) {
         if (outputMsg) {
             //logger.info("Message emitted");
             output.emit('NewData', outputMsg);
+
+            const pos = DetectPosition(outputMsg);
+            if(pos) {
+                stats.gauge("position.lat", pos.lat);
+                stats.gauge("position.lon", pos.lon);
+            }
         }
     } catch (err) {
         logger.error((err as Error).message);
     }
 }
+
+function DetectPosition(msg: Message) {
+    const label = msg.acars.label;
+    const msg_text = msg.acars.msg_text;
+
+    if (['10', '16', '17', '24', '41', '42', '44', '36', '2P', '80', 'H1', '1P', '2P'].includes(label)) {
+      const posRegx = [
+        /N ([0-9]{2,3}.[0-9]{0,4})\DE[\s]{1,2}([0-9]{1,3}.[0-9]{0,4})/, // N 50.465,E 10.226
+        /N[0]{0,3}([0-9]{1,2}.[0-9]{1,3})\WE[0]{0,3}([0-9]{1,2}.[0-9]{1,3})/, // N49.38/E009.62
+        /,[ ]{1,2}([0-9]{2}.[0-9]{1,3}),[ ]{1,2}([0-9]{2}.[0-9]{1,3})/, //, 49.33,  11.40
+      ];
+
+      for (let regex of posRegx) {
+        let match = msg_text.match(regex);
+          if (match) return { lat: Number(match[1]), lon: Number(match[2]) } as Position;
+      }
+    }
+
+    return null;
+  }
