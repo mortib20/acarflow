@@ -49,13 +49,14 @@ setInterval(() => {
     constats = {
         msgs: 0, types: { VDL2: 0, SATCOM: 0, HFDL: 0 }
     }
-}, 60000);
+}, 600000); // 10min
 
 /* Stats */
 const stats = new StatsD(config.stats.host, config.stats.port);
 
 /* Output */
 const output = new Server(config.output.port);
+output.listen(3000)
 logger.info(`OUTPUT: Should listen on port :${config.output.port}`);
 
 
