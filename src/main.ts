@@ -37,11 +37,7 @@ const logger = new Logger();
 /* Console Stats */
 var constats = {
     msgs: 0,
-    types: {
-        VDL2: 0,
-        SATCOM: 0,
-        HFDL: 0
-    }
+    types: { VDL2: 0, SATCOM: 0, HFDL: 0 }
 }
 
 setInterval(() => {
@@ -77,6 +73,8 @@ async function HandleMessage(msg: Buffer, rinfo: dgram.RemoteInfo) {
             let vdl2 = json.vdl2 as VDL2;
             //logger.info(`VDL2 with ACARS`);
             stats.histogram(`vdl2.${vdl2.station}.${vdl2.freq}`, 1);
+            stats.increment(`count.vdl2.${vdl2.station}.${vdl2.freq}`, 1);
+
             constats.msgs++;
             constats.types.VDL2++;
             outputMsg = MakeVDL2Message(json.vdl2);
@@ -86,6 +84,8 @@ async function HandleMessage(msg: Buffer, rinfo: dgram.RemoteInfo) {
             let satcom = json as Satcom;
             //logger.info(`SATCOM with ACARS`);
             stats.histogram(`satcom.${satcom.station}.${satcom.app.ver}`, 1);
+            stats.increment(`count.satcom.${satcom.station}.${satcom.app.ver}`, 1);
+
             constats.msgs++;
             constats.types.SATCOM++;
             outputMsg = MakeSATCOMMessage(satcom);
@@ -95,6 +95,8 @@ async function HandleMessage(msg: Buffer, rinfo: dgram.RemoteInfo) {
             let hfdl = json.hfdl as HFDL;
             //logger.info(`HFDL with ACARS`);
             stats.histogram(`hfdl.${hfdl.station}.${hfdl.freq}`, 1);
+            stats.increment(`count.hfdl.${hfdl.station}.${hfdl.freq}`, 1);
+
             constats.msgs++;
             constats.types.HFDL++;
             outputMsg = MakeHFDLMessage(hfdl);
