@@ -11,13 +11,13 @@ interface Acars {
 }
 
 export default class Message {
-    type: 'VDL2' | 'SATCOM' | 'HFDL';
+    type: 'VDL2' | 'SATCOM' | 'HFDL' | 'ACARS';
     src: Source;
     dst: Destination;
     t: Time;
     acars: Acars;
 
-    constructor(type: 'VDL2' | 'SATCOM' | 'HFDL', src: Source, dst: Destination, t: Time, acars: Acars) {
+    constructor(type: 'VDL2' | 'SATCOM' | 'HFDL' | 'ACARS', src: Source, dst: Destination, t: Time, acars: Acars) {
         this.type = type;
         this.src = src;
         this.dst = dst;

@@ -1,3 +1,4 @@
+import TLAcars from "./interface/acars";
 import HFDL from "./interface/hfdl";
 import Message from "./interface/message";
 import Satcom from "./interface/satcom";
@@ -88,4 +89,33 @@ export function MakeHFDLMessage(hfdl: HFDL) {
     };
 
     return new Message('HFDL', src, dst, t, acars);
+}
+
+export function MakeOldAcarsMessage(tlacars: TLAcars) {
+    const src = {
+        addr: "",
+        type: ""
+    };
+
+    const dst = {
+        addr: "",
+        type: ""
+    }
+
+    const t = {
+        sec: tlacars.timestamp,
+        usec: 0
+    }
+
+    const acars = {
+        msg_text: tlacars.text,
+        mode: tlacars.mode,
+        label: tlacars.label,
+        reg: tlacars.tail,
+        msg_num_seq: "",
+        msg_num: tlacars.msgno,
+        flight: tlacars.flight
+    };
+
+    return new Message('ACARS', src, dst, t, acars);
 }

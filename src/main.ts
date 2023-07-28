@@ -4,15 +4,16 @@ import dotenv from 'dotenv';
 import { StatsD } from 'node-statsd';
 import path from 'path';
 import { Server } from "socket.io";
-import { isHFDL, isSATCOM, isVDL2 } from './check';
+import { isHFDL, isOldAcars, isSATCOM, isVDL2 } from './check';
 import Logger from "./class/logger";
 import Config from "./interface/config";
 import HFDL from './interface/hfdl';
 import Satcom from './interface/satcom';
 import VDL2 from './interface/vdl2';
-import { MakeHFDLMessage, MakeSATCOMMessage, MakeVDL2Message } from './make';
+import { MakeHFDLMessage, MakeOldAcarsMessage, MakeSATCOMMessage, MakeVDL2Message } from './make';
 import Message from './interface/message';
 import Position from './interface/position';
+import TLAcars from './interface/acars';
 
 /* Environment */
 dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
@@ -37,13 +38,13 @@ const logger = new Logger();
 /* Console Stats */
 var constats = {
     msgs: 0,
-    types: { VDL2: 0, SATCOM: 0, HFDL: 0 }
+    types: { VDL2: 0, SATCOM: 0, HFDL: 0, ACARS: 0 }
 }
 
 setInterval(() => {
-    logger.info(`STATS: MSGS: ${constats.msgs} (VDL2: ${constats.types.VDL2}, SATCOM: ${constats.types.SATCOM}, HFDL: ${constats.types.HFDL})`)
+    logger.info(`STATS: MSGS: ${constats.msgs} (VDL2: ${constats.types.VDL2}, SATCOM: ${constats.types.SATCOM}, HFDL: ${constats.types.HFDL}, ACARS: ${constats.types.ACARS})`)
     constats = {
-        msgs: 0, types: { VDL2: 0, SATCOM: 0, HFDL: 0 }
+        msgs: 0, types: { VDL2: 0, SATCOM: 0, HFDL: 0, ACARS: 0 }
     }
 }, 600000); // 10min
 
@@ -67,7 +68,7 @@ input.on('message', HandleMessage)
 async function HandleMessage(msg: Buffer, rinfo: dgram.RemoteInfo) {
     try {
         const json = JSON.parse(msg.toString('utf-8'));
-        let outputMsg: any = undefined;
+        let outputMsg: any = undefined;;
 
         if (isVDL2(json)) {
             let vdl2 = json.vdl2 as VDL2;
@@ -100,6 +101,17 @@ async function HandleMessage(msg: Buffer, rinfo: dgram.RemoteInfo) {
             constats.msgs++;
             constats.types.HFDL++;
             outputMsg = MakeHFDLMessage(hfdl);
+        }
+
+        if (isOldAcars(json)) {
+            let acars = json as TLAcars;
+            //logger.info(`ACARS with ACARS`);
+            stats.histogram(`acars.${acars.station_id}.${acars.freq}`, 1);
+            stats.increment(`count.acars.${acars.station_id}.${acars.freq}`, 1);
+
+            constats.msgs++;
+            constats.types.ACARS++;
+            outputMsg = MakeOldAcarsMessage(acars);
         }
 
         if (outputMsg) {

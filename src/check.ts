@@ -15,3 +15,9 @@ export function isHFDL(msg: any) {
 
     return false;
 }
+
+export function isOldAcars(msg: any) {
+    if(msg?.timestamp && msg?.freq && msg?.tail && msg?.label && msg?.text != "") return true;
+
+    return false;
+}
