@@ -102,12 +102,12 @@ function IncreaseStats(stats: StatsD, type: AcarsType, json: any) {
             stats.increment(`count.acars.${acars.station_id}.${acars.freq}`, 1);
             break;
         case AcarsType.VDL2:
-            const vdl2 = json as VDL2;
+            const vdl2 = json.vdl2 as VDL2;
             stats.histogram(`vdl2.${vdl2.station}.${vdl2.freq}`, 1);
             stats.increment(`count.vdl2.${vdl2.station}.${vdl2.freq}`, 1);
             break;
         case AcarsType.HFDL:
-            const hfdl = json as HFDL;
+            const hfdl = json.hfdl as HFDL;
             stats.histogram(`hfdl.${hfdl.station}.${hfdl.freq}`, 1);
             stats.increment(`count.hfdl.${hfdl.station}.${hfdl.freq}`, 1);
             break;
