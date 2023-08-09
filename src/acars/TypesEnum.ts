@@ -1,0 +1,1 @@
+export enum AcarsType { ACARS, VDL2, HFDL, SATCOM };

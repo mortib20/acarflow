@@ -1,0 +1,21 @@
+{
+  "name": "acarsflow",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./src/main.ts",
+  "scripts": {
+    "dev": "npm tsc -w"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "node-statsd": "^0.1.1",
+    "socket.io": "^4.7.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.4.8",
+    "@types/node-statsd": "^0.1.3",
+    "typescript": "^5.1.6"
+  }
+}
