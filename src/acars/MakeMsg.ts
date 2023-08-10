@@ -1,4 +1,4 @@
-import TLAcars from "./interface/Acars";
+import TLAcars from "./interface/ACARS";
 import HFDL from "./interface/HFDL";
 import Satcom from "./interface/SATCOM";
 import VDL2 from "./interface/VDL2";

@@ -1,8 +1,7 @@
-import { Socket as TcpSocket, isIP, isIPv4 } from "net";
-import { Socket as UdpSocket, createSocket as CreateUdpSocket } from "dgram";
-import Logger from "./Logger";
+import { createSocket as CreateUdpSocket, Socket as UdpSocket } from "dgram";
+import { Socket as TcpSocket } from "net";
 import { InOutParams, Protocol } from "../interface/InOutStuff";
-import { resolve } from "dns/promises";
+import Logger from "./Logger";
 
 function MakeTcpOutput(params: InOutParams) {
     let logger = new Logger(`OUTPUT TCP ${params.hostname}:${params.port}`);
@@ -40,6 +39,8 @@ function MakeUdpOutput(params: InOutParams) {
     udp.on('connect', () => {
         logger.info(`Connected`);
     });
+
+    udp.on('error', (err) => logger.error(err.message));
 
     return { socket: udp, protocol: Protocol.UDP };
 }
