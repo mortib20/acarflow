@@ -18,6 +18,12 @@ export default class UdpOutput implements IOutput {
             this.logger.info(`Connected`);
         });
 
+        this.socket.on('close', () => {
+            setTimeout(() => {
+                this.socket.connect(port, host);
+            }, 20000);
+        })
+
         this.socket.on('error', (err) => this.logger.error(err.message));
     }
 
