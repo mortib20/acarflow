@@ -5,11 +5,12 @@ import HFDL from "./acars/interface/HFDL";
 import SATCOM from "./acars/interface/SATCOM";
 import VDL2 from "./acars/interface/VDL2";
 import TLACARS from "./acars/interface/ACARS";
-import Output from "./class/Output";
+import Output from "./class/output/TcpOutput";
+import IOutput from "./interface/IOutput";
 
-export function SendMessage(outs: Output[], data: Buffer) {
+export function SendMessage(outs: IOutput[], data: Buffer) {
     outs.forEach(out => {
-        out.send(data);
+        out.Send(data);
     })
 }
 

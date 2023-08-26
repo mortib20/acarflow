@@ -3,9 +3,12 @@ import { Server as WsServer } from "socket.io";
 import { IncreaseStats, MakeWsMessage, SendMessage } from "./Utils";
 import DetectAcarsType from "./acars/DetectAcarsType";
 import { AcarsType } from "./acars/TypesEnum";
-import Input from "./class/Input";
-import Output from "./class/Output";
-import { Protocol, Remote } from "./interface/InOutStuff";
+import TcpInput from "./class/input/TcpInput";
+import { default as Output, default as TcpOutput } from "./class/output/TcpOutput";
+import UdpOutput from "./class/output/UdpOutput";
+import IInput from "./interface/IInput";
+import IOutput from "./interface/IOutput";
+import { Remote } from "./interface/InOutStuff";
 
 /*
 ACARS, VDL2, SATCOM, HFDL - YES
@@ -16,47 +19,50 @@ socket.io output - YES
 statistic - YES
 */
 const stats = new StatsD("192.168.168.1", 8125);
-const input = new Input({ hostname: "0.0.0.0", port: 21000, protocol: Protocol.UDP });
+const inputs: IInput[] = [
+    new TcpInput("0.0.0.0", 21000)
+]
 
-const outs = {
+const outs: { acars: IOutput[], vdl2: IOutput[], hfdl: IOutput[], satcom: IOutput[], ws: WsServer } = {
     acars: [
-        new Output({ hostname: "feed.airframes.io", port: 5550, protocol: Protocol.UDP })
+        new TcpOutput("feed.airframes.io", 5550)
     ],
     vdl2: [
-        new Output({ hostname: "feed.airframes.io", port: 5552, protocol: Protocol.UDP })
+        new UdpOutput("feed.airframes.io", 5552)
     ],
     hfdl: [
-        new Output({ hostname: "feed.airframes.io", port: 5556, protocol: Protocol.TCP })
+        new TcpOutput("feed.airframes.io", 5556)
     ],
     satcom: [
-        new Output({ hostname: "feed.airframes.io", port: 5571, protocol: Protocol.UDP })
+        new Output("feed.airframes.io", 5571)
     ],
     ws: new WsServer(21001)
 };
 
-input.on('data', (data: Buffer, remote: Remote) => {
-    let type: AcarsType | null = DetectAcarsType(data);
+inputs.forEach(i => {
+    i.onData((data: Buffer, remote: Remote) => {
+        let type: AcarsType | null = DetectAcarsType(data);
 
-    switch (type) {
-        case AcarsType.ACARS:
-            SendMessage(outs.acars, data);
-            break;
-        case AcarsType.VDL2:
-            SendMessage(outs.vdl2, data);
-            break;
-        case AcarsType.HFDL:
-            SendMessage(outs.hfdl, data);
-            break;
-        case AcarsType.SATCOM:
-            SendMessage(outs.satcom, data);
-            break;
-    }
+        switch (type) {
+            case AcarsType.ACARS:
+                SendMessage(outs.acars, data);
+                break;
+            case AcarsType.VDL2:
+                SendMessage(outs.vdl2, data);
+                break;
+            case AcarsType.HFDL:
+                SendMessage(outs.hfdl, data);
+                break;
+            case AcarsType.SATCOM:
+                SendMessage(outs.satcom, data);
+                break;
+        }
 
-    if (type != null) { // Output to Websocket and also increase statistic
-        let json = JSON.parse(data.toString());
-        //logger.info("websocket send");
-        outs.ws.emit("NewData", MakeWsMessage(type, json));
-        IncreaseStats(stats, type, json);
-    }
+        if (type != null) { // Output to Websocket and also increase statistic
+            let json = JSON.parse(data.toString());
+            //logger.info("websocket send");
+            outs.ws.emit("NewData", MakeWsMessage(type, json));
+            IncreaseStats(stats, type, json);
+        }
+    })
 })
-
