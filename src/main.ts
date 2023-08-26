@@ -10,6 +10,7 @@ import IInput from "./interface/IInput";
 import IOutput from "./interface/IOutput";
 import { Remote } from "./interface/InOutStuff";
 import * as dns from "dns/promises";
+import UdpInput from "./class/input/UdpInput";
 
 /*
 ACARS, VDL2, SATCOM, HFDL - YES
@@ -21,7 +22,7 @@ statistic - YES
 */
 const stats = new StatsD("192.168.168.1", 8125);
 const inputs: IInput[] = [
-    new TcpInput("0.0.0.0", 21000)
+    new UdpInput("0.0.0.0", 21000)
 ]
 
 async function Main() {
