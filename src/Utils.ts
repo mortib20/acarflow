@@ -1,11 +1,10 @@
-import { AcarsType } from "./acars/TypesEnum";
-import { MakeHFDLMessage, MakeOldAcarsMessage, MakeSATCOMMessage, MakeVDL2Message } from "./acars/MakeMsg";
 import { StatsD } from "node-statsd";
+import { AcarsType } from "./acars/DetectAcarsType";
+import { MakeHFDLMessage, MakeOldAcarsMessage, MakeSATCOMMessage, MakeVDL2Message } from "./acars/MakeMsg";
+import TLACARS from "./acars/interface/ACARS";
 import HFDL from "./acars/interface/HFDL";
 import SATCOM from "./acars/interface/SATCOM";
 import VDL2 from "./acars/interface/VDL2";
-import TLACARS from "./acars/interface/ACARS";
-import Output from "./class/output/TcpOutput";
 import IOutput from "./interface/IOutput";
 
 export function SendMessage(outs: IOutput[], data: Buffer) {

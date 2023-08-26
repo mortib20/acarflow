@@ -1,7 +1,7 @@
 import { isIP, isIPv4 } from "net";
 import IInput from "../../interface/IInput";
 import { Socket as UdpSocket, createSocket as CreateUdpSocket } from "dgram";
-import { InOutParams, Remote } from "../../interface/InOutStuff";
+import Remote from "../../interface/Remote";
 import Logger from "../Logger";
 import EventEmitter from "events";
 

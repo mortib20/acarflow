@@ -1,16 +1,14 @@
+import * as dns from "dns/promises";
 import { StatsD } from "node-statsd";
 import { Server as WsServer } from "socket.io";
 import { IncreaseStats, MakeWsMessage, SendMessage } from "./Utils";
-import DetectAcarsType from "./acars/DetectAcarsType";
-import { AcarsType } from "./acars/TypesEnum";
-import TcpInput from "./class/input/TcpInput";
-import { default as Output, default as TcpOutput } from "./class/output/TcpOutput";
+import DetectAcarsType, { AcarsType } from "./acars/DetectAcarsType";
+import UdpInput from "./class/input/UdpInput";
+import TcpOutput from "./class/output/TcpOutput";
 import UdpOutput from "./class/output/UdpOutput";
 import IInput from "./interface/IInput";
 import IOutput from "./interface/IOutput";
-import { Remote } from "./interface/InOutStuff";
-import * as dns from "dns/promises";
-import UdpInput from "./class/input/UdpInput";
+import Remote from "./interface/Remote";
 
 /*
 ACARS, VDL2, SATCOM, HFDL - YES
@@ -20,13 +18,13 @@ feed to feed.acars.io - YES
 socket.io output - YES
 statistic - YES
 */
-const stats = new StatsD("192.168.168.1", 8125);
-const inputs: IInput[] = [
-    new UdpInput("0.0.0.0", 21000)
-]
-
 async function Main() {
-    let airframesIp = (await dns.resolve4("feed.airframes.io"))[0];
+    const stats = new StatsD("192.168.168.1", 8125);
+    const inputs: IInput[] = [
+        new UdpInput("0.0.0.0", 21000)
+    ];
+
+    const airframesIp = (await dns.resolve4("feed.airframes.io"))[0]; // Temporary used to resolve airframes
 
     const outs: { acars: IOutput[], vdl2: IOutput[], hfdl: IOutput[], satcom: IOutput[], ws: WsServer } = {
         acars: [
@@ -43,11 +41,11 @@ async function Main() {
         ],
         ws: new WsServer(21001)
     };
-    
+
     inputs.forEach(i => {
         i.onData((data: Buffer, remote: Remote) => {
             let type: AcarsType | null = DetectAcarsType(data);
-    
+
             switch (type) {
                 case AcarsType.ACARS:
                     SendMessage(outs.acars, data);
@@ -62,7 +60,7 @@ async function Main() {
                     SendMessage(outs.satcom, data);
                     break;
             }
-    
+
             if (type != null) { // Output to Websocket and also increase statistic
                 let json = JSON.parse(data.toString());
                 //logger.info("websocket send");

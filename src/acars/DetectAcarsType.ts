@@ -1,4 +1,4 @@
-import { AcarsType } from "./TypesEnum";
+export enum AcarsType { ACARS, VDL2, HFDL, SATCOM };
 
 export function isVDL2(msg: any) {
     return !!msg?.vdl2?.avlc?.acars?.msg_text;

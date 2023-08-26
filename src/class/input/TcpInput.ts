@@ -1,9 +1,8 @@
 import EventEmitter from "events";
 import { createServer as CreateTcpServer, Server as TcpServer, isIP } from "net";
 import IInput from "../../interface/IInput";
-import { Remote } from "../../interface/InOutStuff";
+import Remote from "../../interface/Remote";
 import Logger from "../Logger";
-
 
 export default class Input implements IInput {
     logger: Logger;
