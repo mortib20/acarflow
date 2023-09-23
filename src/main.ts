@@ -10,6 +10,39 @@ import IInput from "./interface/IInput";
 import IOutput from "./interface/IOutput";
 import Remote from "./interface/Remote";
 
+import * as p from "prom-client";
+import * as http from "http";
+
+const register = new p.Registry();
+
+register.setDefaultLabels({
+    app: "acarflow"
+});
+
+p.collectDefaultMetrics({ register });
+
+var metrics = {
+    hfdl: new p.Gauge({name: "acarflow_hfdl_messages", help: "HFDL Message Count"}),
+    satcom: new p.Gauge({name: "acarflow_satcom_messages", help: "SATCOM Message Count"}),
+    vdl2: new p.Gauge({name: "acarflow_vdl2_messages", help: "VDL2 Message Count"}),
+    acars: new p.Gauge({name: "acarflow_acars_messages", help: "ACARS Message Count"})
+}
+
+const server = http.createServer(async (req, res) => {
+    const route = req.url;
+
+    if (route == "/metrics") {
+        res.setHeader("Content-Type", register.contentType);
+        res.end(await register.metrics());
+    }
+    else {
+        res.statusCode = 404;
+        res.end();
+    }
+});
+
+server.listen(8080);
+
 /*
 ACARS, VDL2, SATCOM, HFDL - YES
 TCP/UDP Input - YES
@@ -42,22 +75,26 @@ async function Main() {
         ws: new WsServer(21001)
     };
 
-    inputs.forEach(i => {
-        i.onData((data: Buffer, remote: Remote) => {
+    inputs.forEach(input => {
+        input.onData((data: Buffer, remote: Remote) => {
             let type: AcarsType | null = DetectAcarsType(data);
 
             switch (type) {
                 case AcarsType.ACARS:
                     SendMessage(outs.acars, data);
+                    metrics.acars.inc(1);
                     break;
                 case AcarsType.VDL2:
                     SendMessage(outs.vdl2, data);
+                    metrics.vdl2.inc(1);
                     break;
                 case AcarsType.HFDL:
                     SendMessage(outs.hfdl, data);
+                    metrics.vdl2.inc(1);
                     break;
                 case AcarsType.SATCOM:
                     SendMessage(outs.satcom, data);
+                    metrics.satcom.inc(1);
                     break;
             }
 
