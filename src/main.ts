@@ -27,6 +27,10 @@ var metrics = {
     vdl2: new p.Gauge({name: "acarflow_vdl2_messages", help: "VDL2 Message Count"}),
     acars: new p.Gauge({name: "acarflow_acars_messages", help: "ACARS Message Count"})
 }
+register.registerMetric(metrics.hfdl);
+register.registerMetric(metrics.satcom);
+register.registerMetric(metrics.vdl2);
+register.registerMetric(metrics.acars);
 
 const server = http.createServer(async (req, res) => {
     const route = req.url;
