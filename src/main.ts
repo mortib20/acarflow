@@ -22,10 +22,10 @@ register.setDefaultLabels({
 p.collectDefaultMetrics({ register });
 
 var metrics = {
-    hfdl: new p.Gauge({name: "acarflow_hfdl_messages", help: "HFDL Message Count"}),
-    satcom: new p.Gauge({name: "acarflow_satcom_messages", help: "SATCOM Message Count"}),
-    vdl2: new p.Gauge({name: "acarflow_vdl2_messages", help: "VDL2 Message Count"}),
-    acars: new p.Gauge({name: "acarflow_acars_messages", help: "ACARS Message Count"})
+    hfdl: new p.Histogram({name: "acarflow_hfdl_messages", help: "HFDL Message Count"}),
+    satcom: new p.Histogram({name: "acarflow_satcom_messages", help: "SATCOM Message Count"}),
+    vdl2: new p.Histogram({name: "acarflow_vdl2_messages", help: "VDL2 Message Count"}),
+    acars: new p.Histogram({name: "acarflow_acars_messages", help: "ACARS Message Count"})
 }
 register.registerMetric(metrics.hfdl);
 register.registerMetric(metrics.satcom);
@@ -86,19 +86,19 @@ async function Main() {
             switch (type) {
                 case AcarsType.ACARS:
                     SendMessage(outs.acars, data);
-                    metrics.acars.inc(1);
+                    metrics.acars.observe(1);
                     break;
                 case AcarsType.VDL2:
                     SendMessage(outs.vdl2, data);
-                    metrics.vdl2.inc(1);
+                    metrics.vdl2.observe(1);
                     break;
                 case AcarsType.HFDL:
                     SendMessage(outs.hfdl, data);
-                    metrics.vdl2.inc(1);
+                    metrics.vdl2.observe(1);
                     break;
                 case AcarsType.SATCOM:
                     SendMessage(outs.satcom, data);
-                    metrics.satcom.inc(1);
+                    metrics.satcom.observe(1);
                     break;
             }
 
