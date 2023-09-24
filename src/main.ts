@@ -19,8 +19,6 @@ register.setDefaultLabels({
     app: "acarflow"
 });
 
-p.collectDefaultMetrics({ register });
-
 var metrics = {
     hfdl: new p.Histogram({name: "acarflow_hfdl_messages", help: "HFDL Message Count"}),
     satcom: new p.Histogram({name: "acarflow_satcom_messages", help: "SATCOM Message Count"}),
