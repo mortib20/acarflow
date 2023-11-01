@@ -1,0 +1,30 @@
+{
+    "dumpvdl2": [
+        {
+            "type": "udp",
+            "hostname": "feed.airframes.io",
+            "port": 5552
+        }
+    ],
+    "dumphfdl": [
+        {
+            "type": "tcp",
+            "hostname": "feed.airframes.io",
+            "port": 5556
+        }
+    ],
+    "acarsdec": [
+        {
+            "type": "udp",
+            "hostname": "feed.airframes.io",
+            "port": 5550
+        }
+    ],
+    "jaero": [
+        {
+            "type": "udp",
+            "hostname": "feed.airframes.io",
+            "port": 5571
+        }
+    ]
+}

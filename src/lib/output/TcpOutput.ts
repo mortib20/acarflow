@@ -1,5 +1,5 @@
 import { Socket as TcpSocket } from "net";
-import IOutput from "../../interface/IOutput";
+import IOutput from "./IOutput";
 import Logger from "../Logger";
 
 
@@ -9,7 +9,7 @@ export default class TcpOutput implements IOutput {
 
     constructor(host: string, port: number) {
         this.logger = new Logger(`OUTPUT TCP ${host}:${port}`)
-        this.socket = new TcpSocket({allowHalfOpen: true});
+        this.socket = new TcpSocket({ allowHalfOpen: true });
 
         this.socket.connect(port, host);
 

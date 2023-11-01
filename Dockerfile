@@ -4,14 +4,16 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm i
 COPY . .
-RUN npx tsc
+RUN npm run build
 
-FROM node:slim
+FROM node:slim as final
+WORKDIR /app
+COPY ./outputs.json ./outputs.json
 COPY ./package.json ./package.json
 COPY --from=build /app/dist /app/dist
 RUN npm install --omit dev
-WORKDIR /app/dist
 
-EXPOSE 21000
-EXPOSE 21001
-CMD [ "node", "main.js"]
+EXPOSE 21000/udp
+EXPOSE 21000/tcp
+EXPOSE 21001/udp
+CMD [ "node", "dist/Main.js"]
