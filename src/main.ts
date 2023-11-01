@@ -16,7 +16,7 @@ export async function Main() {
     const logger = new Logger('MAIN');
     const input = new UdpInput('0.0.0.0', inputPort);
     const websocket = new Server().listen(websocketPort);
-    const stats = new StatsD('192.168.168.1', 8125);
+    const stats = new StatsD(process.env.STATS_HOST || "127.0.0.1", Number(process.env.STATS_PORT) || 8125);
 
     logger.info('Starting ACARFLOW');
     logger.info(`Websocket exposed on ${websocketPort}`);
