@@ -5,9 +5,9 @@ import AcarsHandler from "../AcarsHandler";
 
 export default class UdpInput {
     private logger: Logger;
-    private socket: UdpSocket;
+    public socket: UdpSocket;
 
-    constructor(private readonly address: string, private readonly port: number, acarsHandler: AcarsHandler) {
+    constructor(private readonly address: string, private readonly port: number) {
         this.logger = new Logger(`input:udp:${this.address}:${this.port}`);
         this.socket = CreateUdpSocket(isIPv4(address) ? 'udp4' : 'udp6');
 
@@ -15,10 +15,9 @@ export default class UdpInput {
         this.socket.on('connect', () => this.logger.info('Listening'));
 
         this.socket.bind(this.port, this.address);
-        this.socket.on('message', (msg, _) => acarsHandler.handle(msg))
     }
 
-    public static create(port: number, acarsHandler: AcarsHandler) {
-        return new UdpInput('0.0.0.0', port, acarsHandler);
+    public static create(port: number) {
+        return new UdpInput('0.0.0.0', port);
     }
 }

@@ -15,11 +15,10 @@ async function Main() {
     const statisticsHandler =  StatisticsHandler.create(process.env.STATS_HOST, Number(process.env.STATS_PORT));
     const websocketHandler =  WebsocketHandler.create(21001);
     const acarsHandler = AcarsHandler.create(outputHandler, statisticsHandler, websocketHandler);
-    const input = UdpInput.create(3277, acarsHandler);
+    const inputHandler = InputHandler.create(21000, acarsHandler);
 
     process.on('SIGINT', async () => {
         console.log('STRG+C pressed');
-
         process.exit(0);
     });
 }
