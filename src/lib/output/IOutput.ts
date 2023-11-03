@@ -1,3 +1,3 @@
 export default interface IOutput {
-    Send(buffer: Buffer): void;
+    send(buffer: Buffer): void;
 }

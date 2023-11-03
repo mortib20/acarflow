@@ -2,11 +2,11 @@
     "name": "acarsflow",
     "version": "2.0.1",
     "description": "Sends Acars to somewhere and does stats",
-    "main": "./src/main.ts",
+    "main": "./src/Main.ts",
     "scripts": {
         "start": "node dist/Main.js",
         "build": "npx tsc -b",
-        "dev": "nodemon --exec ts-node src/main.ts"
+        "dev": "nodemon --exec ts-node src/Main.ts"
     },
     "keywords": [],
     "author": "Martin Paul <martin.paul-3277@web.de>",

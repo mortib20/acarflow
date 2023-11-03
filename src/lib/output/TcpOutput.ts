@@ -1,41 +1,35 @@
-import { Socket as TcpSocket } from "net";
+import * as net from "net";
 import IOutput from "./IOutput";
 import Logger from "../Logger";
 
-
 export default class TcpOutput implements IOutput {
-    logger: Logger;
-    socket: TcpSocket;
+    private readonly logger: Logger;
+    private readonly socket: net.Socket;
 
-    constructor(host: string, port: number) {
-        this.logger = new Logger(`OUTPUT TCP ${host}:${port}`)
-        this.socket = new TcpSocket({ allowHalfOpen: true });
+    public constructor(private address: string, private port: number) {
+        this.logger = new Logger(`output:tcp:${address}:${port}`);
+        this.socket = net.connect(port, address);
 
-        this.socket.connect(port, host);
-
-        // Connected
-        this.socket.on('connect', () => {
-            this.logger.info(`Connected`);
-        });
-
-        // Error
-        this.socket.on('error', (err) => {
-            this.logger.error(err.message);
-        });
-
-        // Conection closed
-        this.socket.on('close', (hadError) => {
-            hadError ? this.logger.error("Closed") : this.logger.info("Closed");
-
-            // Reconnect
-            setTimeout(() => {
-                this.socket.destroy();
-                this.socket.connect(port, host);
-            }, 20000);
-        });
+        this.socket.on('connect', () => this.logger.info('Connected'));
+        this.socket.on('error', (err) => this.logger.error(err.message));
+        this.socket.on('close', (had) => setTimeout(() => this.reconnect(had), 5000));
     }
 
-    public Send(data: Buffer) {
-        this.socket.write(data);
+    private reconnect(error: boolean) {
+        if (error) {
+            this.socket.connect(this.port, this.address);
+        }
+    }
+
+    public connect() {
+        this.socket.connect(this.port, this.address, () => {});
+    }
+
+    public send(buffer: Buffer): void {
+        this.socket.write(buffer);
+    }
+
+    public static async create(address: string, port: number): Promise<TcpOutput> {
+        return new TcpOutput(address, port);
     }
 }

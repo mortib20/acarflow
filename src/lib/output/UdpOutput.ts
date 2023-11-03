@@ -1,61 +1,32 @@
-import { Socket, Socket as UdpSocket, createSocket } from 'dgram';
-import { isIPv4 } from "net";
+import * as dgram from 'dgram';
 import * as dns from "dns/promises";
 import IOutput from "./IOutput";
 import Logger from "../Logger";
-import { log } from 'console';
-
 
 export default class UdpOutput implements IOutput {
-    logger: Logger;
-    socket: UdpSocket | undefined;
+    private readonly logger: Logger;
+    private readonly socket: dgram.Socket;
 
-    constructor(host: string, port: number) {
-        this.logger = new Logger(`OUTPUT UDP ${host}:${port}`);
+    public constructor(private address: string, private type: dgram.SocketType, private port: number) {
+        this.logger = new Logger(`output:udp:${address}:${port}`);
+        this.socket = dgram.createSocket(this.type);
+        this.socket.connect(port, address);
 
-        (dns.resolve(host)).then((_) => {
-            this.socket = createSocket(!isIPv4(host) ? 'udp4' : 'udp6');
-            this.socket.connect(port, host);
-
-            this.connect();
-
-            this.reconnect(port, host);
-
-            this.error();
-        });
+        this.socket.on('connect', () => this.logger.info('Connected'));
+        this.socket.on('error', (err) => this.logger.error(err.message));
+        this.socket.on('close', () => setTimeout(() => this.reconnect(), 5000));
     }
 
-    private error() {
-        if (this.socket) {
-            this.socket.on('error', (err) => this.logger.error(err.message));
-        }
+    private reconnect(): void {
+        this.socket.connect(this.port, this.address);
     }
 
-    private connect() {
-        if (this.socket) {
-            this.socket.on('connect', () => {
-                this.logger.info(`Connected`);
-            });
-        }
+    public send(buffer: Buffer): void {
+        this.socket.send(buffer);
     }
 
-    private reconnect(port: number, host: string) {
-        if (this.socket) {
-            this.socket.on('close', () => {
-                setTimeout(() => {
-                    if(this.socket) {
-                        this.socket.connect(port, host);
-                    }
-                }, 20000);
-            });
-        }
-    }
-
-    Send(buffer: Buffer): void {
-        if (this.socket) {
-            this.socket.send(buffer);
-        } else {
-            this.logger.error("Failed so send");
-        }
+    public static async create(address: string, port: number): Promise<UdpOutput> {
+        const found = await dns.lookup(address);
+        return new UdpOutput(address, found.family === 4 ? 'udp4' : 'udp6', port);
     }
 }
