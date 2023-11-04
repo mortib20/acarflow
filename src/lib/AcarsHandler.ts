@@ -1,14 +1,14 @@
 import OutputHandler from "./OutputHandler";
+import StatisticsHandler from "./StatisticsHandler";
+import WebsocketHandler from "./WebsocketHandler";
 import Acarsdec from "./acars/Acarsdec";
 import DumpHfdl from "./acars/DumpHfdl";
 import DumpVdl2 from "./acars/DumpVdl2";
 import Jaero from "./acars/Jaero";
 import MinimizedAcars from "./acars/MinimizedAcars";
-import StatisticsHandler from "./StatisticsHandler";
-import WebsocketHandler from "./WebsocketHandler";
 
 export default class AcarsHandler {
-    public constructor(private readonly outputHandler: OutputHandler, private readonly statisticsHandler: StatisticsHandler, private readonly websocketHandler: WebsocketHandler) {
+    private constructor(private readonly outputHandler: OutputHandler, private readonly websocketHandler: WebsocketHandler, private readonly statisticsHandler: StatisticsHandler) {
     }
 
     public handle(buffer: Buffer) {
@@ -23,6 +23,7 @@ export default class AcarsHandler {
         }
 
         let acars: MinimizedAcars | undefined;
+
         if (AcarsHandler.isDumpVdl2(json)) {
             const dumpvdl2 = json as DumpVdl2;
             acars = MinimizedAcars.fromDumpVDL2(dumpvdl2);
@@ -48,7 +49,7 @@ export default class AcarsHandler {
         }
 
         if (acars) {
-            const tags = [`type=${acars.type}}`, `channel=${acars.channel}`, `receiver=${acars.receiver}`, `label=${acars.label}`];
+            const tags = [`icao=${acars.icao || '000000'}`, `type=${acars.type}`, `channel=${acars.channel}`, `receiver=${acars.receiver}`, `label=${acars.label}`];
             this.statisticsHandler.increment(`acars`, tags);
             this.websocketHandler.send(acars.type, acars);
         }
@@ -70,7 +71,7 @@ export default class AcarsHandler {
         return json['app']?.['name'] === 'JAERO' && json['isu']?.['acars'];
     }
 
-    public static create(outputHandler: OutputHandler, statisticsHandler: StatisticsHandler, websocketHandler: WebsocketHandler) {
-        return new AcarsHandler(outputHandler, statisticsHandler, websocketHandler);
+    public static create(outputHandler: OutputHandler, websocketHandler: WebsocketHandler, statisticsHandler: StatisticsHandler) {
+        return new AcarsHandler(outputHandler, websocketHandler, statisticsHandler);
     }
 }

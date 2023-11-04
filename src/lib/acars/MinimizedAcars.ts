@@ -4,7 +4,7 @@ import DumpVdl2 from "./DumpVdl2";
 import Jaero from "./Jaero";
 
 export default class MinimizedAcars {
-    constructor(public type: string, public channel: string, public receiver: string, public timestamp: number, public label: string, public text: string, public reg: string, public flight: string, public addr: string) {
+    constructor(public type: string, public channel: string, public receiver: string, public timestamp: number, public label: string, public text: string, public reg: string, public flight: string, public icao: string) {
     }
 
     public static fromDumpVDL2(dumpvdl2: DumpVdl2): MinimizedAcars {

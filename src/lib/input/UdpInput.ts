@@ -1,7 +1,6 @@
 import { createSocket as CreateUdpSocket, Socket as UdpSocket } from "dgram";
 import { isIPv4 } from "net";
 import Logger from "../Logger";
-import AcarsHandler from "../AcarsHandler";
 
 export default class UdpInput {
     private logger: Logger;
@@ -15,9 +14,5 @@ export default class UdpInput {
         this.socket.on('connect', () => this.logger.info('Listening'));
 
         this.socket.bind(this.port, this.address);
-    }
-
-    public static create(port: number) {
-        return new UdpInput('0.0.0.0', port);
     }
 }
