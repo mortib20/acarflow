@@ -14,7 +14,7 @@ function Main() {
     const statisticsHandler = StatisticsHandler.create(process.env.STATS_HOST, 8125);
     const websocketHandler = WebsocketHandler.create(21001);
     const acarsHandler = AcarsHandler.create(outputHandler, websocketHandler, statisticsHandler); 
-    const inputHandler = InputHandler.create(3277);
+    const inputHandler = InputHandler.create(21000);
 
     inputHandler.input.socket.on('message', (buffer, _) => {
         acarsHandler.handle(buffer);
