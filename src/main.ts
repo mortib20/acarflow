@@ -20,10 +20,10 @@ function Main() {
         acarsHandler.handle(buffer);
     });
 
-    // process.on('SIGINT', async () => {
-    //     console.log('STRG+C pressed');
-    //     process.exit(0);
-    // });
+    process.on('SIGINT', async () => {
+        console.log('STRG+C pressed');
+        process.exit(0);
+    });
 }
 
 Main();
