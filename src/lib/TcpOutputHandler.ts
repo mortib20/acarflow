@@ -18,7 +18,7 @@ export default class TcpOutputHandler {
         })
     }
     
-    public write(data: any) {
+    public write(data: string) {
         this.connectedSockets.forEach(socket => socket.write(data))
     }
     
