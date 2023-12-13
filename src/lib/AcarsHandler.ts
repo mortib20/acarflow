@@ -53,7 +53,7 @@ export default class AcarsHandler {
             const tags = [`icao=${acars.icao || '000000'}`, `type=${acars.type}`, `channel=${acars.channel}`, `receiver=${acars.receiver}`, `label=${acars.label}`]
             this.statisticsHandler.increment('acars', tags)
             this.websocketHandler.send(acars.type, acars)
-            this.tcpOutputHandler.write(buffer.toString('utf-8'))
+            this.tcpOutputHandler.write(JSON.stringify(acars))
         }
     }
 

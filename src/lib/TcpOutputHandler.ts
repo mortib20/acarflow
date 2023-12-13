@@ -19,7 +19,8 @@ export default class TcpOutputHandler {
     }
     
     public write(data: string) {
-        this.connectedSockets.forEach(socket => socket.write(data))
+        var buffer = Buffer.from(data, 'utf-8');
+        this.connectedSockets.forEach(socket => socket.write(buffer))
     }
     
     public static create(port: number) {
