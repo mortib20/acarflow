@@ -1,32 +1,32 @@
-import * as dgram from 'dgram';
-import * as dns from "dns/promises";
-import IOutput from "./IOutput";
-import Logger from "../Logger";
+import * as dgram from 'dgram'
+import * as dns from 'dns/promises'
+import IOutput from './IOutput'
+import Logger from '../Logger'
 
 export default class UdpOutput implements IOutput {
-    private readonly logger: Logger;
-    private readonly socket: dgram.Socket;
+    private readonly logger: Logger
+    private readonly socket: dgram.Socket
 
     public constructor(private address: string, private type: dgram.SocketType, private port: number) {
-        this.logger = new Logger(`output:udp:${address}:${port}`);
-        this.socket = dgram.createSocket(this.type);
-        this.socket.connect(port, address);
+        this.logger = new Logger(`output:udp:${address}:${port}`)
+        this.socket = dgram.createSocket(this.type)
+        this.socket.connect(port, address)
 
-        this.socket.on('connect', () => this.logger.info('Connected'));
-        this.socket.on('error', (err) => this.logger.error(err.message));
-        this.socket.on('close', () => setTimeout(() => this.reconnect(), 5000));
+        this.socket.on('connect', () => this.logger.info('Connected'))
+        this.socket.on('error', (err) => this.logger.error(err.message))
+        this.socket.on('close', () => setTimeout(() => this.reconnect(), 5000))
     }
 
     private reconnect(): void {
-        this.socket.connect(this.port, this.address);
+        this.socket.connect(this.port, this.address)
     }
 
     public send(buffer: Buffer): void {
-        this.socket.send(buffer);
+        this.socket.send(buffer)
     }
 
     public static async create(address: string, port: number): Promise<UdpOutput> {
-        const found = await dns.lookup(address);
-        return new UdpOutput(address, found.family === 4 ? 'udp4' : 'udp6', port);
+        const found = await dns.lookup(address)
+        return new UdpOutput(address, found.family === 4 ? 'udp4' : 'udp6', port)
     }
 }

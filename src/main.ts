@@ -15,12 +15,10 @@ function Main() {
     const statisticsHandler = StatisticsHandler.create(process.env.STATS_HOST, 8125)
     const websocketHandler = WebsocketHandler.create(21001)
     const tcpOutputHandler = TcpOutputHandler.create(3277)
-    const acarsHandler = AcarsHandler.create(outputHandler, websocketHandler, statisticsHandler, tcpOutputHandler) 
+    const acarsHandler = AcarsHandler.create(outputHandler, websocketHandler, statisticsHandler, tcpOutputHandler)
     const inputHandler = InputHandler.create(21000)
 
-    inputHandler.input.socket.on('message', (buffer) => {
-        acarsHandler.handle(buffer)
-    })
+    inputHandler.onMessage(buffer => acarsHandler.handle(buffer))
 
     process.on('SIGINT', async () => {
         console.log('STRG+C pressed')

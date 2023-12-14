@@ -19,7 +19,7 @@ export default class TcpOutputHandler {
     }
     
     public write(data: string) {
-        var buffer = Buffer.from(data, 'utf-8');
+        const buffer = Buffer.from(data, 'utf-8')
         this.connectedSockets.forEach(socket => socket.write(buffer))
     }
     

@@ -1,10 +1,10 @@
-import { createSocket as CreateUdpSocket, Socket as UdpSocket } from 'dgram'
-import { isIPv4 } from 'net'
+import {createSocket as CreateUdpSocket, Socket as UdpSocket} from 'dgram'
+import {isIPv4} from 'net'
 import Logger from '../Logger'
 
 export default class UdpInput {
+    private socket: UdpSocket
     private logger: Logger
-    public socket: UdpSocket
 
     constructor(private readonly address: string, private readonly port: number) {
         this.logger = new Logger(`input:udp:${this.address}:${this.port}`)
@@ -14,5 +14,9 @@ export default class UdpInput {
         this.socket.on('connect', () => this.logger.info('Listening'))
 
         this.socket.bind(this.port, this.address)
+    }
+
+    public onMessage(listener: (buffer: Buffer) => void) {
+        this.socket.on('message', (buffer) => listener(buffer))
     }
 }

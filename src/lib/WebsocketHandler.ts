@@ -3,7 +3,7 @@ import Logger from './Logger'
 
 export default class WebsocketHandler {
     private constructor(port: number, private readonly io: Server, private readonly logger: Logger) {
-        this.logger.info('Exposed')
+        this.logger.info(`Listening on ${port}`)
         io.listen(port)
     }
 
@@ -12,6 +12,6 @@ export default class WebsocketHandler {
     }
 
     public static create(port: number) {
-        return new WebsocketHandler(port, new Server({ httpCompression: true }), new Logger(`ws:0.0.0.0:${port}`))
+        return new WebsocketHandler(port, new Server({ httpCompression: true }), new Logger(this.name))
     }
 }

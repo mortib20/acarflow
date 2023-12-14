@@ -7,4 +7,8 @@ export default class InputHandler {
     public static create(port: number) {
         return new InputHandler(new UdpInput('0.0.0.0', port))
     }
+
+    public onMessage(listener: (buffer: Buffer) => void) {
+        this.input.onMessage(listener)
+    }
 }
