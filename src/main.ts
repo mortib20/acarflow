@@ -4,6 +4,7 @@ import StatisticsHandler from './lib/StatisticsHandler'
 import WebsocketHandler from './lib/WebsocketHandler'
 import InputHandler from './lib/InputHandler'
 import TcpOutputHandler from './lib/TcpOutputHandler'
+import CouchDBHandler from './lib/CouchDBHandler'
 
 function Main() {
     const outputHandler = OutputHandler.create()
@@ -15,7 +16,8 @@ function Main() {
     const statisticsHandler = StatisticsHandler.create(process.env.STATS_HOST, 8125)
     const websocketHandler = WebsocketHandler.create(21001)
     const tcpOutputHandler = TcpOutputHandler.create(3277)
-    const acarsHandler = AcarsHandler.create(outputHandler, websocketHandler, statisticsHandler, tcpOutputHandler)
+    const couchDBHandler = CouchDBHandler.create(process.env.ACARFLOWDB_ADDRESS ?? 'http://localhost')
+    const acarsHandler = AcarsHandler.create(outputHandler, websocketHandler, statisticsHandler, tcpOutputHandler, couchDBHandler)
     const inputHandler = InputHandler.create(21000)
 
     inputHandler.onMessage(buffer => acarsHandler.handle(buffer))

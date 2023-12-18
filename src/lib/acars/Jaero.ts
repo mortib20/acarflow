@@ -3,42 +3,42 @@ export default interface Jaero {
     isu: Isu
     station: string
     t: T
-  }
-  
-  export interface App {
+}
+
+export interface App {
     name: string
     ver: string
-  }
-  
-  export interface Isu {
+}
+
+export interface Isu {
     acars: Acars
     dst: Dst
     qno: string
     refno: string
     src: Src
-  }
-  
-  export interface Acars {
+}
+
+export interface Acars {
     ack: string
     blk_id: string
     label: string
     mode: string
     msg_text: string
     reg: string
-  }
-  
-  export interface Dst {
+}
+
+export interface Dst {
     addr: string
     type: string
-  }
-  
-  export interface Src {
+}
+
+export interface Src {
     addr: string
     type: string
-  }
-  
-  export interface T {
+}
+
+export interface T {
     sec: number
     usec: number
-  }
+}
   

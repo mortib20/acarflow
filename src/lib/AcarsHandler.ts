@@ -7,9 +7,10 @@ import DumpVdl2 from './acars/DumpVdl2'
 import Jaero from './acars/Jaero'
 import MinimizedAcars from './acars/MinimizedAcars'
 import TcpOutputHandler from './TcpOutputHandler'
+import CouchDBHandler from './CouchDBHandler'
 
 export default class AcarsHandler {
-    private constructor(private readonly outputHandler: OutputHandler, private readonly websocketHandler: WebsocketHandler, private readonly statisticsHandler: StatisticsHandler, private readonly tcpOutputHandler: TcpOutputHandler) {
+    private constructor(private readonly outputHandler: OutputHandler, private readonly websocketHandler: WebsocketHandler, private readonly statisticsHandler: StatisticsHandler, private readonly tcpOutputHandler: TcpOutputHandler, private readonly couchDBHandler: CouchDBHandler) {
     }
 
     public handle(buffer: Buffer) {
@@ -54,6 +55,7 @@ export default class AcarsHandler {
             this.statisticsHandler.increment('acars', tags)
             this.websocketHandler.send(acars.type, acars)
             this.tcpOutputHandler.write(JSON.stringify(acars))
+            this.couchDBHandler.writeFrame(acars)
         }
     }
 
@@ -73,7 +75,7 @@ export default class AcarsHandler {
         return json['app']?.['name'] === 'JAERO' && json['isu']?.['acars']
     }
 
-    public static create(outputHandler: OutputHandler, websocketHandler: WebsocketHandler, statisticsHandler: StatisticsHandler, tcpOutputHandler: TcpOutputHandler) {
-        return new AcarsHandler(outputHandler, websocketHandler, statisticsHandler, tcpOutputHandler)
+    public static create(outputHandler: OutputHandler, websocketHandler: WebsocketHandler, statisticsHandler: StatisticsHandler, tcpOutputHandler: TcpOutputHandler, couchDBHandler: CouchDBHandler) {
+        return new AcarsHandler(outputHandler, websocketHandler, statisticsHandler, tcpOutputHandler, couchDBHandler)
     }
 }

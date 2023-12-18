@@ -16,4 +16,6 @@ RUN npm install --omit dev
 EXPOSE 21000/udp
 EXPOSE 21000/tcp
 EXPOSE 21001/udp
+ENV ACARFLOWDB_ADDRESS='https://localhost'
+
 CMD [ "node", "dist/main.js"]
