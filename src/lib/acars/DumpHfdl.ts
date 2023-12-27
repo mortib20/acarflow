@@ -46,7 +46,7 @@ export interface Acars {
     err: boolean
     flight: string
     label: string
-    "media-adv": MediaAdv
+    'media-adv': MediaAdv
     mode: string
     more: boolean
     msg_num: string

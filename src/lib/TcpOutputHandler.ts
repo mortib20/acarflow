@@ -2,12 +2,11 @@ import * as tcp from 'net'
 import Logger from './Logger'
 
 export default class TcpOutputHandler {
-    private static readonly logger = new Logger(this.name)
     private server: tcp.Server
     private connectedSockets: tcp.Socket[] = []
     
-    constructor(port: number) {
-        TcpOutputHandler.logger.info(`Listening on ${port}`)
+    private constructor(port: number, logger: Logger) {
+        logger.info(`Listening on 0.0.0.0:${port}`)
         this.server = tcp.createServer()
         this.server.listen(port)
         this.server.on('connection', (client) => {
@@ -24,6 +23,6 @@ export default class TcpOutputHandler {
     }
     
     public static create(port: number) {
-        return new TcpOutputHandler(port)
+        return new TcpOutputHandler(port, new Logger(this.name))
     }
 }

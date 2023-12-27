@@ -1,17 +1,17 @@
 import Logger from './Logger'
 import Nano, {MaybeDocument} from 'nano'
-import MinimizedAcars from './acars/MinimizedAcars'
+import BasicAcars from './acars/BasicAcars'
 
 interface iCouchDBAcars extends MaybeDocument {
-    frame: MinimizedAcars
+    frame: BasicAcars
 }
 
 class CouchDBAcars implements iCouchDBAcars {
     _id: string | undefined
     _rev: string | undefined
-    frame: MinimizedAcars
+    frame: BasicAcars
 
-    constructor(frame: MinimizedAcars) {
+    constructor(frame: BasicAcars) {
         this._id = undefined
         this._rev = undefined
         this.frame = frame
@@ -24,9 +24,9 @@ export default class CouchDBHandler {
         logger.info('Starting')
     }
 
-    writeFrame(acars: MinimizedAcars) {
+    writeFrame(acars: BasicAcars) {
         const document = new CouchDBAcars(acars)
-        this.nano.use('acarflow').insert(document).catch(reason => this.logger.error(reason))
+        this.nano.use('acarflow').insert(document).catch((error: Error) => this.logger.error(error.message))
     }
 
     public static create(address: string) {

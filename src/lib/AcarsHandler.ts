@@ -5,7 +5,7 @@ import Acarsdec from './acars/Acarsdec'
 import DumpHfdl from './acars/DumpHfdl'
 import DumpVdl2 from './acars/DumpVdl2'
 import Jaero from './acars/Jaero'
-import MinimizedAcars from './acars/MinimizedAcars'
+import BasicAcars from './acars/BasicAcars'
 import TcpOutputHandler from './TcpOutputHandler'
 import CouchDBHandler from './CouchDBHandler'
 
@@ -24,29 +24,29 @@ export default class AcarsHandler {
             return
         }
 
-        let acars: MinimizedAcars | undefined
+        let acars: BasicAcars | undefined
 
         if (AcarsHandler.isDumpVdl2(json)) {
             const dumpvdl2 = json as DumpVdl2
-            acars = MinimizedAcars.fromDumpVDL2(dumpvdl2)
+            acars = BasicAcars.fromDumpVDL2(dumpvdl2)
             OutputHandler.write(this.outputHandler.dumpvdl2, buffer)
         }
 
         if (AcarsHandler.isDumpHfdl(json)) {
             const dumphfdl = json as DumpHfdl
-            acars = MinimizedAcars.fromDumpHFDL(dumphfdl)
+            acars = BasicAcars.fromDumpHFDL(dumphfdl)
             OutputHandler.write(this.outputHandler.dumphfdl, buffer)
         }
 
         if (AcarsHandler.isAcarsdec(json)) {
             const acarsdec = json as Acarsdec
-            acars = MinimizedAcars.fromAcarsdec(acarsdec)
+            acars = BasicAcars.fromAcarsdec(acarsdec)
             OutputHandler.write(this.outputHandler.acarsdec, buffer)
         }
 
         if (AcarsHandler.isJaero(json)) {
             const jaero = json as Jaero
-            acars = MinimizedAcars.fromJaero(jaero)
+            acars = BasicAcars.fromJaero(jaero)
             OutputHandler.write(this.outputHandler.jaero, buffer)
         }
 

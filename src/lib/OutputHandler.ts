@@ -1,4 +1,4 @@
-import { readFileSync } from 'fs'
+import {readFileSync} from 'fs'
 import Logger from './Logger'
 import IOutput from './output/IOutput'
 import TcpOutput from './output/TcpOutput'
@@ -6,43 +6,36 @@ import UdpOutput from './output/UdpOutput'
 
 export default class OutputHandler {
     private static readonly OUTPUTS_CONFIG_PATH = 'outputs.json'
-    private static readonly logger = new Logger(this.name)
 
-    private constructor(public readonly dumpvdl2: IOutput[], public readonly dumphfdl: IOutput[], public readonly acarsdec: IOutput[], public readonly jaero: IOutput[]) {
+    private constructor(public readonly dumpvdl2: IOutput[], public readonly dumphfdl: IOutput[], public readonly acarsdec: IOutput[], public readonly jaero: IOutput[], private readonly logger: Logger) {
     }
 
-    public static create() {
+    public static async create() {
+        const logger = new Logger(this.name)
+
+        logger.info(`Reading ${this.OUTPUTS_CONFIG_PATH}`)
         const outputsConfig = this.readOutputsConfig()
 
-        if (!outputsConfig) {
-            return undefined
+        const outputs = {
+            dumpvdl2: await Promise.all(this.createOutputs(outputsConfig.dumpvdl2)),
+            dumphfdl: await Promise.all(this.createOutputs(outputsConfig.dumphfdl)),
+            acarsdec: await Promise.all(this.createOutputs(outputsConfig.acarsdec)),
+            jaero: await Promise.all(this.createOutputs(outputsConfig.jaero)),
         }
 
-        const dumpvdl2 = this.createOutputs(outputsConfig.dumpvdl2)
-        const dumphfdl = this.createOutputs(outputsConfig.dumphfdl)
-        const acarsdec = this.createOutputs(outputsConfig.acarsdec)
-        const jaero = this.createOutputs(outputsConfig.jaero)
-
-        return new OutputHandler(dumpvdl2, dumphfdl, acarsdec, jaero)
+        return new OutputHandler(outputs.dumpvdl2, outputs.dumphfdl, outputs.acarsdec, outputs.jaero, logger)
     }
 
-    private static readOutputsConfig(): OutputsConfig | undefined {
-        this.logger.info(`Reading outputs.json at ${this.OUTPUTS_CONFIG_PATH}`)
+    private static readOutputsConfig(): OutputsConfig {
         try {
-            return JSON.parse(readFileSync(this.OUTPUTS_CONFIG_PATH, { encoding: 'utf-8' }))
+            return JSON.parse(readFileSync(this.OUTPUTS_CONFIG_PATH, {encoding: 'utf-8'}))
         } catch (err) {
-            this.logger.error((err as Error).message)
-            return undefined
+            throw new Error('Failed to read outputs')
         }
     }
 
-    private static createOutputs(outputItemConfigs: OutputItemConfig[]) {
-        const outputs: IOutput[] = []
-        outputItemConfigs.forEach(out => {
-            outputs.push(out.type === 'tcp' ? new TcpOutput(out.hostname, out.port) : new UdpOutput(out.hostname, 'udp4', out.port))   
-        })
-
-        return outputs
+    private static createOutputs(outputItemConfigs: OutputConfig[]) {
+        return outputItemConfigs.map(async out => out.protocol.toUpperCase() === 'TCP' ? TcpOutput.create(out.hostname, out.port) as IOutput : await UdpOutput.create(out.hostname, out.port) as IOutput)
     }
 
     public static write(outputs: IOutput[], buffer: Buffer) {
@@ -51,14 +44,14 @@ export default class OutputHandler {
 }
 
 export interface OutputsConfig {
-    dumpvdl2: OutputItemConfig[]
-    dumphfdl: OutputItemConfig[]
-    acarsdec: OutputItemConfig[]
-    jaero: OutputItemConfig[]
+    dumpvdl2: OutputConfig[]
+    dumphfdl: OutputConfig[]
+    acarsdec: OutputConfig[]
+    jaero: OutputConfig[]
 }
 
-export interface OutputItemConfig {
-    type: 'tcp' | 'udp'
+export interface OutputConfig {
+    protocol: 'tcp' | 'udp'
     hostname: string
     port: number
 }

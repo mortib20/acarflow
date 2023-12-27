@@ -11,7 +11,7 @@ export default class Logger {
     }
 
     private getMessage(type: string, message: string): string {
-        return `[${this.getISODate()}] ${type}[0m: ${this.name} | ${message}`
+        return `[${this.getISODate()}] ${type}[0m: ${this.name} => ${message}`
     }
 
     private getISODate() {

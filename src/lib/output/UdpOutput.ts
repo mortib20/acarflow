@@ -7,8 +7,8 @@ export default class UdpOutput implements IOutput {
     private readonly logger: Logger
     private readonly socket: dgram.Socket
 
-    public constructor(private address: string, private type: dgram.SocketType, private port: number) {
-        this.logger = new Logger(`output:udp:${address}:${port}`)
+    public constructor(name: string, private address: string, private type: dgram.SocketType, private port: number) {
+        this.logger = new Logger(`${name}:${address}:${port}`)
         this.socket = dgram.createSocket(this.type)
         this.socket.connect(port, address)
 
@@ -27,6 +27,6 @@ export default class UdpOutput implements IOutput {
 
     public static async create(address: string, port: number): Promise<UdpOutput> {
         const found = await dns.lookup(address)
-        return new UdpOutput(address, found.family === 4 ? 'udp4' : 'udp6', port)
+        return new UdpOutput(this.name, address, found.family === 4 ? 'udp4' : 'udp6', port)
     }
 }
