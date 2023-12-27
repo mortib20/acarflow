@@ -27,32 +27,40 @@ export default class AcarsHandler {
         let acars: BasicAcars | undefined
 
         if (AcarsHandler.isDumpVdl2(json)) {
-            const dumpvdl2 = json as DumpVdl2
-            acars = BasicAcars.fromDumpVDL2(dumpvdl2)
             OutputHandler.write(this.outputHandler.dumpvdl2, buffer)
+            if (AcarsHandler.isAcarsFrame(json)) {
+                const dumpvdl2 = json as DumpVdl2
+                acars = BasicAcars.fromDumpVDL2(dumpvdl2)
+            }
         }
 
         if (AcarsHandler.isDumpHfdl(json)) {
-            const dumphfdl = json as DumpHfdl
-            acars = BasicAcars.fromDumpHFDL(dumphfdl)
             OutputHandler.write(this.outputHandler.dumphfdl, buffer)
+            if (AcarsHandler.isAcarsFrame(json)) {
+                const dumphfdl = json as DumpHfdl
+                acars = BasicAcars.fromDumpHFDL(dumphfdl)
+            }
         }
 
         if (AcarsHandler.isAcarsdec(json)) {
-            const acarsdec = json as Acarsdec
-            acars = BasicAcars.fromAcarsdec(acarsdec)
             OutputHandler.write(this.outputHandler.acarsdec, buffer)
+            if (AcarsHandler.isAcarsFrame(json)) {
+                const acarsdec = json as Acarsdec
+                acars = BasicAcars.fromAcarsdec(acarsdec)
+            }
         }
 
         if (AcarsHandler.isJaero(json)) {
-            const jaero = json as Jaero
-            acars = BasicAcars.fromJaero(jaero)
             OutputHandler.write(this.outputHandler.jaero, buffer)
+            if (AcarsHandler.isAcarsFrame(json)) {
+                const jaero = json as Jaero
+                acars = BasicAcars.fromJaero(jaero)
+            }
         }
 
         if (acars) {
             const tags = [`icao=${acars.icao || '000000'}`, `type=${acars.type}`, `channel=${acars.channel}`, `receiver=${acars.receiver}`, `label=${acars.label}`]
-            this.statisticsHandler.increment('acars', tags)
+            this.statisticsHandler.increment('acarflow', tags)
             this.websocketHandler.send(acars.type, acars)
             this.tcpOutputHandler.write(JSON.stringify(acars))
             this.couchDBHandler.writeFrame(acars)
@@ -60,11 +68,12 @@ export default class AcarsHandler {
     }
 
     private static isDumpVdl2(json: any): boolean {
-        return json['vdl2']?.['app']?.['name'] === 'dumpvdl2' && json['vdl2']?.['avlc']?.['acars']
+        return json['vdl2']?.['app']?.['name'] === 'dumpvdl2'
     }
 
+
     private static isDumpHfdl(json: any): boolean {
-        return json['hfdl']?.['app']?.['name'] === 'dumphfdl' && json['hfdl']?.['lpdu']?.['hfnpdu']?.['acars']
+        return json['hfdl']?.['app']?.['name'] === 'dumphfdl'
     }
 
     private static isAcarsdec(json: any): boolean {
@@ -72,7 +81,12 @@ export default class AcarsHandler {
     }
 
     private static isJaero(json: any): boolean {
-        return json['app']?.['name'] === 'JAERO' && json['isu']?.['acars']
+        return json['app']?.['name'] === 'JAERO'
+    }
+    
+    private static isAcarsFrame(json: any): boolean {
+        // No test for acarsdec
+        return !!(json['vdl2']?.['avlc']?.['acars'] || json['hfdl']?.['lpdu']?.['hfnpdu']?.['acars'] || json['isu']?.['acars'])
     }
 
     public static create(outputHandler: OutputHandler, websocketHandler: WebsocketHandler, statisticsHandler: StatisticsHandler, tcpOutputHandler: TcpOutputHandler, couchDBHandler: CouchDBHandler) {
