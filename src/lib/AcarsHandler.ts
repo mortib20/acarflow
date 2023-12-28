@@ -8,6 +8,7 @@ import Jaero from './acars/Jaero'
 import BasicAcars from './acars/BasicAcars'
 import TcpOutputHandler from './TcpOutputHandler'
 import CouchDBHandler from './CouchDBHandler'
+import VDL2FeatureSearch from './feature/VDL2FeatureSearch'
 
 export default class AcarsHandler {
     private constructor(private readonly outputHandler: OutputHandler, private readonly websocketHandler: WebsocketHandler, private readonly statisticsHandler: StatisticsHandler, private readonly tcpOutputHandler: TcpOutputHandler, private readonly couchDBHandler: CouchDBHandler) {
@@ -31,6 +32,12 @@ export default class AcarsHandler {
             if (AcarsHandler.isAcarsFrame(json)) {
                 const dumpvdl2 = json as DumpVdl2
                 acars = BasicAcars.fromDumpVDL2(dumpvdl2)
+
+                // TODO Put this in extra class AcarsFeatureExtractor?
+                const position = VDL2FeatureSearch.SearchPosition(acars.label, acars.text)
+                if (position) {
+                    this.outputHandler.sendPositionBasestation(acars.icao, acars.flight, position.lat, position.lon)
+                }
             }
         }
 
@@ -83,7 +90,7 @@ export default class AcarsHandler {
     private static isJaero(json: any): boolean {
         return json['app']?.['name'] === 'JAERO'
     }
-    
+
     private static isAcarsFrame(json: any): boolean {
         // No test for acarsdec
         return !!(json['vdl2']?.['avlc']?.['acars'] || json['hfdl']?.['lpdu']?.['hfnpdu']?.['acars'] || json['isu']?.['acars'])

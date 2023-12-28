@@ -3,11 +3,9 @@ import IOutput from './IOutput'
 import Logger from '../Logger'
 
 export default class TcpOutput implements IOutput {
-    private readonly logger: Logger
     private readonly socket: net.Socket
 
-    private constructor(name: string, private address: string, private port: number) {
-        this.logger = new Logger(`${name}:${address}:${port}`)
+    private constructor(private address: string, private port: number, private readonly logger: Logger) {
         this.socket = net.connect(port, address)
 
         this.socket.on('connect', () => this.logger.info('Connected'))
@@ -31,7 +29,7 @@ export default class TcpOutput implements IOutput {
         this.socket.write(buffer)
     }
 
-    public static create(address: string, port: number): TcpOutput {
-        return new TcpOutput(this.name, address, port)
+    public static create(address: string, port: number, name?: string): TcpOutput {
+        return new TcpOutput(address, port, new Logger(`${this.name}${name ? `:${name}` : ''}:${address}:${port}`))
     }
 }

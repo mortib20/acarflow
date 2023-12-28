@@ -26,5 +26,12 @@
             "hostname": "feed.airframes.io",
             "port": 5571
         }
-    ]
+    ],
+    "basestation": [
+        {
+            "protocol": "tcp",
+            "hostname": "192.168.168.3",
+            "port": 30031
+        }
+    ] 
 }
