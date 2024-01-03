@@ -66,8 +66,14 @@ export default class AcarsHandler {
         }
 
         if (acars) {
-            const tags = [`icao=${acars.icao || '000000'}`, `type=${acars.type}`, `channel=${acars.channel}`, `receiver=${acars.receiver}`, `label=${acars.label}`]
-            this.statisticsHandler.increment('acarflow', tags)
+            this.statisticsHandler
+                .receivedMessagesTotal
+                .labels({
+                    label: acars.label,
+                    type: acars.type,
+                    channel: acars.channel,
+                    icao: acars.icao || '000000'
+                }).inc()
             this.websocketHandler.send(acars.type, acars)
             this.tcpOutputHandler.write(JSON.stringify(acars))
             this.couchDBHandler.writeFrame(acars)
@@ -92,8 +98,7 @@ export default class AcarsHandler {
     }
 
     private static isAcarsFrame(json: any): boolean {
-        // No test for acarsdec
-        return !!(json['vdl2']?.['avlc']?.['acars'] || json['hfdl']?.['lpdu']?.['hfnpdu']?.['acars'] || json['isu']?.['acars'])
+        return !!(json['vdl2']?.['avlc']?.['acars'] || json['hfdl']?.['lpdu']?.['hfnpdu']?.['acars'] || json['isu']?.['acars'] || json['text'])
     }
 
     public static create(outputHandler: OutputHandler, websocketHandler: WebsocketHandler, statisticsHandler: StatisticsHandler, tcpOutputHandler: TcpOutputHandler, couchDBHandler: CouchDBHandler) {

@@ -1,14 +1,25 @@
-import {StatsD} from 'node-statsd'
+import * as p from 'prom-client'
+import {Server} from 'http'
 
 export default class StatisticsHandler {
-    private constructor(private readonly statsd: StatsD) {
+    public receivedMessagesTotal = new p.Counter({
+        name: 'received_messages_total',
+        help: 'Total received messages',
+        labelNames: ['label', 'flight_number', 'flight', 'icao', 'channel', 'type'],
+    })
+    
+    private constructor(private readonly registry: p.Registry, http: Server) {
+        registry.setDefaultLabels({ app: 'acarflow' })
+        registry.registerMetric(this.receivedMessagesTotal)
+        
+        http.on('request', async (req, res) => {
+            if (req.url !== '/metrics') return
+            res.setHeader('Content-Type', registry.contentType)
+            res.end(await registry.metrics())
+        })
     }
 
-    public increment(stat: string, tags: string[]) {
-        this.statsd.increment(stat, 1, undefined, tags)
-    }
-
-    public static create(statisticsHost: string, statisticsPort: number) {
-        return new StatisticsHandler(new StatsD(statisticsHost, statisticsPort))
+    public static create(http: Server) {
+        return new StatisticsHandler(new p.Registry(), http)
     }
 }
